@@ -1,0 +1,1026 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Ключник</title><style>
+@page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; line-height: 1.5; color: #1d1d1f; }
+h1 { font-size: 34pt; margin: 120px 0 4px; letter-spacing: -0.5px; }
+h1 + h3 { font-size: 15pt; font-weight: 400; color: #555; margin-top: 0; }
+h2 { font-size: 19pt; page-break-before: always; border-bottom: 2px solid #1d1d1f; padding-bottom: 6px; margin-top: 0; }
+h3 { font-size: 13pt; margin: 20px 0 6px; }
+p { margin: 6px 0 8px; }
+ul, ol { margin: 6px 0 10px; padding-left: 22px; }
+li { margin: 3px 0; }
+code { font-family: Consolas, 'Courier New', monospace; font-size: 9.5pt; background: #f1f1f3; padding: 1px 4px; border-radius: 3px; }
+pre { font-family: Consolas, 'Courier New', monospace; font-size: 9pt; line-height: 1.4; background: #f6f6f8;
+      border: 1px solid #e2e2e6; border-radius: 6px; padding: 10px 12px; white-space: pre-wrap; word-break: break-word; }
+pre code { background: none; padding: 0; font-size: inherit; }
+.box { padding: 10px 14px; margin: 14px 0; border-radius: 0 6px 6px 0; page-break-inside: avoid; border-left: 4px solid; }
+.key { border-color: #b07d12; background: #fbf6ea; }
+.vibe { border-color: #7b4bd1; background: #f4effc; }
+.dev { border-color: #1f7a5a; background: #ecf7f2; }
+</style></head><body><h1>Ключник</h1>
+<h3>Бот-привратник для закрытого чата: заявки с анкетой, оплата в Telegram Stars, автопродление и автокик, сервер 24/7</h3>
+<p>Закрытый курс сообщества. Файл не пересылаем за пределы чата.</p>
+<p><strong>Содержание</strong></p>
+<ul><li>Урок 0. Что соберём и правила игры</li><li>Урок 1. Скелет и рекламные метки</li><li>Урок 2. Заявки в чат и кнопка «Я человек»</li><li>Урок 3. Анкета и решение админа</li><li>Урок 4. База: кто и откуда пришёл</li><li>Урок 5. Оплата в Telegram Stars и подписка</li><li>Урок 6. Надёжность: ошибки, антифлуд, тесты</li><li>Урок 7. Сервер 24/7</li><li>Урок 8. Финал: пропуск у Привратника</li><li>Приложение А. Вайб-кодинг ботов: промпт и чек-лист</li><li>Приложение Б. Частые ошибки и как их лечить</li><li>Приложение В. Полный код bot.py</li></ul>
+<h2>Урок 0. Что соберём и правила игры</h2>
+<p>За 8 уроков ты соберёшь бота, который сторожит закрытый чат. Такого бота можно сразу поставить в своё сообщество или сделать на заказ: это одна из самых частых задач на фрилансе.</p>
+<p><strong>Что будет уметь бот</strong></p>
+<ul><li>Принимать заявки в чат: отсеивать спам-ботов кнопкой «Я человек», задавать анкету и присылать её тебе с кнопками «Принять» и «Отклонить».</li><li>Продавать доступ за Telegram Stars, выдавать одноразовую ссылку, напоминать о продлении и сам удалять тех, у кого кончилась подписка.</li><li>Считать, откуда приходят люди: у каждой рекламы своя ссылка-метка.</li><li>Присылать тебе в личку каждую ошибку с трейсбеком.</li><li>Жить на сервере 24/7 и подниматься после падений.</li></ul>
+<p><strong>Для кого</strong></p>
+<p>В каждом уроке два блока советов. «Вайб-кодеру» — если ты пишешь код с ИИ: как ставить задачу и что проверять в ответе. «Кодеру» — практика из боевых ботов, которой нет в документации. В конце — шаблон промпта, чек-лист проверки кода от ИИ и разбор частых ошибок.</p>
+<p><strong>Правила игры</strong></p>
+<ul><li>В каждом уроке с 1 по 7 спрятан ключ. Он появляется, только когда ты делаешь практику: бот что-то ответит, код что-то напечатает, сервер выдаст ошибку.</li><li>Записывай ключи в файл keys.txt по порядку и точно как их выдали: с тем же регистром, без пробелов и кавычек.</li><li>В финале твой бот посчитает пропуск из семи ключей, твоего Telegram ID и слова от Привратника — бота нашего сообщества. Ссылка на Привратника — в закреплённом посте.</li><li>Пропуск личный. Чужой тебе не подойдёт, твой не подойдёт другим. Один бот проводит через дверь одного человека.</li><li>Ключи в чате не выкладываем. Помогать друг другу с кодом — можно и нужно.</li></ul>
+<p><strong>Что нужно</strong></p>
+<ul><li>Python 3.10 или новее и любой редактор (подойдёт VS Code).</li><li>Базовый Python: переменные, функции, if. Остальное объясним по ходу.</li><li>Второй аккаунт Telegram или друг из сообщества — чтобы проверить заявки.</li><li>К уроку 7 — сервер на Linux. Хватит самого дешёвого VPS.</li></ul>
+<h2>Урок 1. Скелет и рекламные метки</h2>
+<p>Сегодня заводим бота и учим его понимать, по какой ссылке пришёл человек. Это первая полезная фича: дал блогеру одну ссылку, в рекламу — другую, и видишь, что работает.</p>
+<h3>Шаг 1. Бот у BotFather</h3>
+<ol><li>Открой @BotFather и отправь /newbot.</li><li>Придумай имя и username. Username должен заканчиваться на bot.</li><li>BotFather пришлёт токен вида <code>7395021846:AAH...</code>. Это пароль от бота. Число до двоеточия — ID бота, оно пригодится в финале.</li></ol>
+<h3>Шаг 2. Проект</h3>
+<pre><code>mkdir kluchnik
+cd kluchnik
+python -m venv venv</code></pre>
+<p>Активируй окружение. Windows: <code>venv\Scripts\activate</code>. macOS и Linux: <code>source venv/bin/activate</code>. Затем:</p>
+<pre><code>pip install aiogram python-dotenv</code></pre>
+<p>Рядом с кодом создай файл <code>.env</code>:</p>
+<pre><code>BOT_TOKEN=сюда_твой_токен
+OWNER_ID=0</code></pre>
+<h3>Шаг 3. Код</h3>
+<p>Файл <code>bot.py</code>:</p>
+<pre><code>import asyncio
+import logging
+import os
+
+from aiogram import Bot, Dispatcher, F, Router
+from aiogram.filters import Command, CommandObject, CommandStart
+from aiogram.types import Message
+from aiogram.utils.deep_linking import create_start_link
+from dotenv import load_dotenv
+
+load_dotenv()
+OWNER_ID = int(os.getenv(&quot;OWNER_ID&quot;, &quot;0&quot;))
+router = Router()
+
+
+@router.message(CommandStart(deep_link=True, deep_link_encoded=True))
+async def start_from_link(message: Message, command: CommandObject):
+    await message.answer(f&quot;Привет! Ты пришёл по метке: {command.args}&quot;)
+
+
+@router.message(CommandStart())
+async def start(message: Message):
+    await message.answer(&quot;Привет! Я Ключник, бот закрытого чата.&quot;)
+
+
+@router.message(Command(&quot;id&quot;))
+async def my_id(message: Message):
+    await message.answer(f&quot;Твой ID: {message.from_user.id}&quot;)
+
+
+@router.message(Command(&quot;link&quot;), F.from_user.id == OWNER_ID)
+async def make_link(message: Message, command: CommandObject, bot: Bot):
+    if not command.args:
+        await message.answer(&quot;Формат: /link метка, например /link youtube&quot;)
+        return
+    await message.answer(await create_start_link(bot, command.args, encode=True))
+
+
+@router.message(F.chat.type == &quot;private&quot;)
+async def fallback(message: Message):
+    await message.answer(&quot;Не понял. Напиши /start&quot;)
+
+
+async def main():
+    logging.basicConfig(level=logging.INFO)
+    bot = Bot(os.environ[&quot;BOT_TOKEN&quot;])
+    dp = Dispatcher()
+    dp.include_router(router)
+    await dp.start_polling(bot)
+
+
+if __name__ == &quot;__main__&quot;:
+    asyncio.run(main())</code></pre>
+<p>Запусти: <code>python bot.py</code>. Напиши боту /id, впиши число в .env вместо нуля в OWNER_ID и перезапусти бота (Ctrl+C и снова <code>python bot.py</code>). Теперь отправь <code>/link youtube</code> — бот пришлёт ссылку с меткой.</p>
+<h3>Как это работает</h3>
+<ul><li>Бот раз за разом спрашивает Telegram «есть новое?». Это polling. Каждое событие — сообщение, нажатие кнопки, заявка в чат — приходит как update.</li><li>Dispatcher раздаёт update роутерам, Router — коробка с хендлерами. Хендлер — функция с декоратором, который говорит, на что она реагирует.</li><li>Хендлеры проверяются сверху вниз, событие забирает первый подходящий. Поэтому fallback, который ловит всё подряд, всегда стоит последним.</li><li><code>F.from_user.id == OWNER_ID</code> — фильтр: /link работает только у тебя. У остальных команда провалится в fallback.</li><li>Ссылка <code>t.me/бот?start=метка</code> отправляет боту «/start метка». В метке можно только латиницу, цифры, _ и -, до 64 символов. <code>encode=True</code> кодирует метку в base64, поэтому в неё влезают любые символы, хоть кириллица. <code>deep_link_encoded=True</code> декодирует её обратно.</li></ul>
+<div class="box key"><strong>Ключ 1.</strong> Открой ссылку <code>https://t.me/ИМЯ_ТВОЕГО_БОТА?start=c3JjOnZvcm90YS03</code> (username бота без @) и нажми «Запустить». Метка из ответа бота — ключ 1. Запиши её в keys.txt.</div>
+<div class="box vibe"><strong>Вайб-кодеру.</strong> Первой строкой любого запроса к ИИ пиши версии: «Python 3.12, aiogram 3.x, не 2.x». Код для aiogram 2 узнаётся сразу: <code>executor.start_polling</code>, <code>@dp.message_handler</code>. Увидел такое — проси переписать под aiogram 3.</div>
+<div class="box dev"><strong>Кодеру.</strong> Токен и ID живут только в .env. Если токен хоть раз попал в git, не переписывай историю — сразу отправь BotFather /revoke: копии репозитория уже могли разойтись.</div>
+<h2>Урок 2. Заявки в чат и кнопка «Я человек»</h2>
+<p>Сегодня бот начнёт встречать каждого, кто подал заявку в твой чат. Спам-боты кнопки не нажимают, поэтому одна кнопка «Я человек» отсекает большую часть спама.</p>
+<h3>Шаг 1. Тестовый чат</h3>
+<ol><li>Создай группу. В настройках: «Пригласительные ссылки» → «Создать ссылку» → включи «Заявки на вступление».</li><li>Добавь бота в администраторы с правом приглашать пользователей. Без этого права бот не увидит заявок.</li><li>Отправь в группе /chatid. Бот ответит ID вида -100… — впиши его в .env строкой <code>CHAT_ID=-100...</code>.</li></ol>
+<h3>Шаг 2. Код</h3>
+<p>Добавь в импорты:</p>
+<pre><code>from aiogram.exceptions import TelegramBadRequest
+from aiogram.filters.callback_data import CallbackData
+from aiogram.types import CallbackQuery, ChatJoinRequest, Message
+from aiogram.utils.keyboard import InlineKeyboardBuilder</code></pre>
+<p>Под строкой с OWNER_ID:</p>
+<pre><code>CHAT_ID = int(os.getenv(&quot;CHAT_ID&quot;, &quot;0&quot;))</code></pre>
+<p>Под строкой <code>router = Router()</code>:</p>
+<pre><code>class Gate(CallbackData, prefix=&quot;jr&quot;):
+    act: str
+    user_id: int</code></pre>
+<p>Хендлеры — выше fallback:</p>
+<pre><code>@router.message(Command(&quot;chatid&quot;))
+async def chat_id(message: Message):
+    await message.answer(f&quot;ID этого чата: {message.chat.id}&quot;)
+
+
+@router.chat_join_request(F.chat.id == CHAT_ID)
+async def on_join_request(request: ChatJoinRequest, bot: Bot):
+    kb = InlineKeyboardBuilder()
+    kb.button(text=&quot;Я человек&quot;, callback_data=Gate(act=&quot;human&quot;, user_id=request.from_user.id))
+    await bot.send_message(
+        request.user_chat_id,
+        f&quot;Ты подал заявку в «{request.chat.title}». Нажми кнопку, чтобы продолжить.&quot;,
+        reply_markup=kb.as_markup(),
+    )
+
+
+@router.callback_query(Gate.filter(F.act == &quot;human&quot;))
+async def human(callback: CallbackQuery, bot: Bot):
+    try:
+        await bot.approve_chat_join_request(CHAT_ID, callback.from_user.id)
+    except TelegramBadRequest:
+        await callback.answer(&quot;Заявка уже обработана или устарела.&quot;, show_alert=True)
+        return
+    await callback.message.edit_text(&quot;Готово, добро пожаловать в чат!&quot;)
+    await callback.answer()</code></pre>
+<p>Перезапусти бота и попроси друга (или свой второй аккаунт) подать заявку по ссылке. Человек получит сообщение с кнопкой, нажмёт — и окажется в чате.</p>
+<h3>Как это работает</h3>
+<ul><li>Заявка приходит отдельным типом события: <code>chat_join_request</code>. Писать человеку можно через <code>request.user_chat_id</code>, даже если он ни разу не запускал бота. Окно короткое — 5 минут, поэтому пишем сразу.</li><li>Inline-кнопка отправляет боту невидимую строку callback_data — до 64 байт. Класс <code>Gate</code> сам собирает её из полей и разбирает обратно: в хендлере <code>user_id</code> уже число.</li><li><code>Gate.filter(F.act == &quot;human&quot;)</code> пропускает только кнопки «Я человек».</li><li><code>callback.answer()</code> обязателен. Без него у человека крутятся часики на кнопке.</li></ul>
+<div class="box key"><strong>Ключ 2.</strong> Открой второй терминал в папке проекта, активируй venv и выполни: <code>python -c &quot;from bot import Gate; print(Gate(act=&#x27;human&#x27;, user_id=12).pack())&quot;</code>. Напечатанная строка — ключ 2.</div>
+<p>Бот при этом не запустится: main() вызывается, только когда файл запускают напрямую. Для этого и нужна строчка <code>if __name__ == &quot;__main__&quot;</code>.</p>
+<div class="box vibe"><strong>Вайб-кодеру.</strong> ИИ часто забывает <code>callback.answer()</code>. Симптом — часики на кнопке 10–15 секунд. Нашёл callback-хендлер без answer — допиши сам.</div>
+<div class="box dev"><strong>Кодеру.</strong> Права проверяй в хендлере, а не тем, кому показал кнопку. В следующем уроке кнопки админа защищены фильтром по OWNER_ID: даже если кнопка попадёт к другому человеку, она ничего не сделает.</div>
+<h2>Урок 3. Анкета и решение админа</h2>
+<p>Сегодня кнопка «Я человек» станет началом анкеты. Бот задаст два вопроса, пришлёт тебе карточку заявки, а ты решишь, пускать ли человека.</p>
+<h3>Зачем состояния</h3>
+<p>Бот получает сообщения по одному и сам не помнит, о чём шла речь. Пришло «Пишу ботов на заказ» — это ответ на анкету или просто текст? Состояние (FSM, машина состояний) — пометка «этот человек сейчас отвечает на такой-то вопрос».</p>
+<p>Добавь в импорты:</p>
+<pre><code>from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup</code></pre>
+<p>Рядом с классом Gate:</p>
+<pre><code>class Apply(StatesGroup):
+    waiting_who = State()
+    waiting_from = State()</code></pre>
+<p>Что умеет <code>state</code> в хендлере: <code>set_state</code> ставит пометку, <code>update_data</code> и <code>get_data</code> хранят ответы, <code>clear</code> всё стирает. Хендлер с фильтром <code>Apply.waiting_who</code> сработает только у того, кто стоит в этом состоянии.</p>
+<h3>Код</h3>
+<p>Замени хендлер human — теперь он не пускает сразу, а начинает анкету:</p>
+<pre><code>@router.callback_query(Gate.filter(F.act == &quot;human&quot;))
+async def human(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(Apply.waiting_who)
+    await callback.message.edit_text(&quot;Спасибо! Два вопроса.\n1. Кто ты и чем занимаешься?&quot;)
+    await callback.answer()</code></pre>
+<p>Новые хендлеры. /cancel ставь выше остальных, всё вместе — выше fallback:</p>
+<pre><code>@router.message(Command(&quot;cancel&quot;))
+async def cancel(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(&quot;Отменил.&quot;)
+
+
+@router.callback_query(Gate.filter(F.act.in_({&quot;ok&quot;, &quot;no&quot;})), F.from_user.id == OWNER_ID)
+async def decide(callback: CallbackQuery, callback_data: Gate, bot: Bot):
+    uid, ok = callback_data.user_id, callback_data.act == &quot;ok&quot;
+    try:
+        if ok:
+            await bot.approve_chat_join_request(CHAT_ID, uid)
+        else:
+            await bot.decline_chat_join_request(CHAT_ID, uid)
+    except TelegramBadRequest as e:
+        await callback.answer(f&quot;Не вышло: {e.message}&quot;[:200], show_alert=True)
+        return
+    with suppress(TelegramAPIError):
+        await bot.send_message(uid, &quot;Заявка принята. Добро пожаловать!&quot; if ok else &quot;Заявка отклонена.&quot;)
+    verdict = &quot;принята&quot; if ok else &quot;отклонена&quot;
+    await callback.message.edit_text(f&quot;{callback.message.text}\n\nЗаявка {verdict}.&quot;)
+    await callback.answer()
+
+
+@router.message(Apply.waiting_who, F.text)
+async def apply_who(message: Message, state: FSMContext):
+    await state.update_data(who=message.text)
+    await state.set_state(Apply.waiting_from)
+    print(await state.get_state())
+    await message.answer(&quot;2. Откуда узнал о нас?&quot;)
+
+
+@router.message(Apply.waiting_from, F.text)
+async def apply_from(message: Message, state: FSMContext, bot: Bot):
+    data = await state.get_data()
+    await state.clear()
+    user = message.from_user
+    nick = f&quot; @{user.username}&quot; if user.username else &quot;&quot;
+    kb = InlineKeyboardBuilder()
+    kb.button(text=&quot;Принять&quot;, callback_data=Gate(act=&quot;ok&quot;, user_id=user.id))
+    kb.button(text=&quot;Отклонить&quot;, callback_data=Gate(act=&quot;no&quot;, user_id=user.id))
+    await bot.send_message(
+        OWNER_ID,
+        f&quot;Заявка: {user.full_name}{nick}, id {user.id}\n\n&quot;
+        f&quot;Кто: {data[&#x27;who&#x27;]}\nОткуда: {message.text}&quot;,
+        reply_markup=kb.as_markup(),
+    )
+    await message.answer(&quot;Анкета у админа. Ответ придёт сюда.&quot;)</code></pre>
+<p>Для <code>suppress</code> и <code>TelegramAPIError</code> добавь в импорты <code>from contextlib import suppress</code> и допиши TelegramAPIError в строку с TelegramBadRequest.</p>
+<h3>Ловушки порядка</h3>
+<ul><li>В aiogram 3 хендлер без фильтра состояния срабатывает в любом состоянии. Окажись fallback выше анкеты — он перехватит все ответы.</li><li>Окажись /cancel ниже анкеты — текст «/cancel» запишется как ответ, и сбежать не получится.</li><li>Состояния по умолчанию живут в памяти процесса. Перезапустил бота — анкеты в процессе потеряны. В больших ботах состояния хранят в Redis.</li></ul>
+<div class="box key"><strong>Ключ 3.</strong> Подай заявку со второго аккаунта, нажми «Я человек» и ответь на первый вопрос. Посмотри в консоль, где запущен бот: строка, которую напечатал <code>print(await state.get_state())</code>, — ключ 3. После этого print можно удалить.</div>
+<div class="box vibe"><strong>Вайб-кодеру.</strong> Если ИИ хранит ответы в глобальном словаре вроде <code>answers = {}</code> — проси переделать на FSM. Глобальный словарь путает людей, которые заполняют анкету одновременно.</div>
+<div class="box dev"><strong>Кодеру.</strong> Текст от пользователя отправляй без parse_mode или пропускай через <code>html.escape()</code>. Иначе первый же человек, который напишет «&lt;3», уронит отправку ошибкой «can't parse entities». Наш бот шлёт анкеты простым текстом.</div>
+<h2>Урок 4. База: кто и откуда пришёл</h2>
+<p>Сегодня бот начнёт записывать каждого нового человека и его метку. Команда /admin покажет, какая реклама приводит людей. Данные переживут перезапуск.</p>
+<p>SQLite — база данных в одном файле: сервер не нужен, модуль уже встроен в Python. Для бота берём aiosqlite — ту же SQLite, но с await, чтобы запрос к диску не замораживал бота для остальных.</p>
+<pre><code>pip install aiosqlite</code></pre>
+<p>Добавь <code>import aiosqlite</code> в импорты, а под <code>CHAT_ID</code> — строку <code>DB = &quot;kluchnik.db&quot;</code>. Функции базы — под <code>router = Router()</code>:</p>
+<pre><code>async def init_db():
+    async with aiosqlite.connect(DB) as db:
+        await db.executescript(
+            &quot;&quot;&quot;
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY,
+                source TEXT,
+                joined TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            &quot;&quot;&quot;
+        )
+        await db.commit()
+
+
+async def save_user(user_id: int, source: str | None):
+    async with aiosqlite.connect(DB) as db:
+        await db.execute(
+            &quot;INSERT OR IGNORE INTO users (user_id, source) VALUES (?, ?)&quot;,
+            (user_id, source),
+        )
+        await db.commit()
+
+
+async def sources_report():
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            &quot;SELECT COALESCE(source, &#x27;без метки&#x27;), COUNT(*) AS c FROM users &quot;
+            &quot;GROUP BY source ORDER BY c DESC&quot;
+        )
+        return await cur.fetchall()</code></pre>
+<p>Три правки в старом коде:</p>
+<ol><li>В main() перед <code>await dp.start_polling(bot)</code> добавь <code>await init_db()</code>.</li><li>В start_from_link первой строкой добавь <code>await save_user(message.from_user.id, command.args)</code>, а в start — <code>await save_user(message.from_user.id, None)</code>.</li><li>Новый хендлер выше fallback:</li></ol>
+<pre><code>@router.message(Command(&quot;admin&quot;), F.from_user.id == OWNER_ID)
+async def admin(message: Message):
+    rows = await sources_report()
+    lines = [f&quot;{source}: {count}&quot; for source, count in rows] or [&quot;пока никого&quot;]
+    await message.answer(&quot;Откуда пришли:\n&quot; + &quot;\n&quot;.join(lines))</code></pre>
+<h3>Как это работает</h3>
+<ul><li><code>?</code> в запросе — место для значения. Значения передаём отдельно кортежем. Данные пользователя в SQL через f-строку не вставляем никогда: это SQL-инъекция.</li><li><code>INSERT OR IGNORE</code> вместе с <code>PRIMARY KEY</code> записывает человека один раз. Пришёл сначала с YouTube, потом из рекламы — засчитается YouTube. Это модель «первого касания»: заслуга достаётся каналу, который привёл человека первым.</li><li><code>COALESCE(source, &#x27;без метки&#x27;)</code> подставляет текст вместо пустой метки.</li><li><code>GROUP BY source</code> собирает людей с одной меткой в группу, <code>COUNT(*)</code> считает размер группы, <code>ORDER BY c DESC</code> ставит самую большую первой.</li></ul>
+<div class="box key"><strong>Ключ 4.</strong> Сначала предскажи ответ в уме — помни про первое касание. Потом создай файл key4.py с кодом ниже и запусти. Напечатанная строка — ключ 4.</div>
+<pre><code>import sqlite3
+
+db = sqlite3.connect(&quot;:memory:&quot;)
+db.execute(&quot;CREATE TABLE users (user_id INTEGER PRIMARY KEY, source TEXT)&quot;)
+db.executemany(
+    &quot;INSERT OR IGNORE INTO users VALUES (?, ?)&quot;,
+    [(1, &quot;yt&quot;), (2, &quot;ads&quot;), (1, &quot;ads&quot;), (3, &quot;yt&quot;), (4, None), (2, &quot;yt&quot;), (5, &quot;ads&quot;), (6, &quot;ads&quot;)],
+)
+source, count = db.execute(
+    &quot;SELECT COALESCE(source, &#x27;none&#x27;), COUNT(*) AS c FROM users &quot;
+    &quot;GROUP BY source ORDER BY c DESC, source LIMIT 1&quot;
+).fetchone()
+print(f&quot;{source}:{count}&quot;)</code></pre>
+<div class="box vibe"><strong>Вайб-кодеру.</strong> Поищи в коде от ИИ SQL с f-строкой вроде <code>f&quot;... WHERE id = {user_id}&quot;</code>. Это дыра. Правильно — только <code>?</code> и кортеж значений.</div>
+<div class="box dev"><strong>Кодеру.</strong> Время в базе храни в UTC и в формате <code>ГГГГ-ММ-ДД ЧЧ:ММ:СС</code> — так SQLite сравнивает даты обычным сравнением строк. Часовой пояс пользователя подставляй только при выводе. SQLite спокойно тянет бота на десятки тысяч человек; PostgreSQL нужен, когда в базу пишут несколько процессов сразу.</div>
+<h2>Урок 5. Оплата в Telegram Stars и подписка</h2>
+<p>Сегодня бот начнёт продавать доступ в чат на 30 дней. После оплаты он выдаст одноразовую ссылку, за 3 дня до конца напомнит о продлении, а не продлившего сам удалит из чата.</p>
+<h3>Почему Stars</h3>
+<p>За цифровые товары и услуги внутри Telegram бот берёт оплату в Telegram Stars — это правило платформы. Плюс для нас: не нужен ни платёжный провайдер, ни договор, ни provider_token. Валюта Stars в коде — <code>XTR</code>, сумма — целое число звёзд.</p>
+<p>Добавь в импорты <code>from datetime import timedelta</code>, а в строку типов — <code>LabeledPrice</code> и <code>PreCheckoutQuery</code>. Под строкой с DB:</p>
+<pre><code>PRICE_STARS = 100
+SUB_DAYS = 30</code></pre>
+<h3>База подписок</h3>
+<p>В init_db внутрь <code>executescript</code> после таблицы users допиши вторую таблицу:</p>
+<pre><code>            CREATE TABLE IF NOT EXISTS subs (
+                user_id INTEGER PRIMARY KEY,
+                until TEXT NOT NULL,
+                reminded INTEGER DEFAULT 0
+            );</code></pre>
+<p>Функции — к остальным функциям базы:</p>
+<pre><code>async def extend_sub(user_id: int, days: int) -&gt; str:
+    period = f&quot;+{days} days&quot;
+    async with aiosqlite.connect(DB) as db:
+        await db.execute(
+            &quot;INSERT INTO subs (user_id, until) VALUES (?, datetime(&#x27;now&#x27;, ?)) &quot;
+            &quot;ON CONFLICT(user_id) DO UPDATE SET &quot;
+            &quot;until = datetime(max(until, datetime(&#x27;now&#x27;)), ?), reminded = 0&quot;,
+            (user_id, period, period),
+        )
+        await db.commit()
+        cur = await db.execute(&quot;SELECT until FROM subs WHERE user_id = ?&quot;, (user_id,))
+        return (await cur.fetchone())[0]
+
+
+async def sub_until(user_id: int) -&gt; str | None:
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            &quot;SELECT until FROM subs WHERE user_id = ? AND until &gt; datetime(&#x27;now&#x27;)&quot;,
+            (user_id,),
+        )
+        row = await cur.fetchone()
+        return row[0] if row else None</code></pre>
+<p><code>extend_sub</code> делает «upsert»: нет подписки — создаёт, есть — продлевает. <code>max(until, datetime(&#x27;now&#x27;))</code> решает важный вопрос: продлил заранее — дни прибавятся к концу подписки, продлил после окончания — отсчёт пойдёт от сегодня.</p>
+<h3>Покупка</h3>
+<p>Хендлеры — выше fallback:</p>
+<pre><code>@router.message(Command(&quot;buy&quot;))
+async def buy(message: Message):
+    await message.answer_invoice(
+        title=&quot;Доступ в закрытый чат&quot;,
+        description=f&quot;{SUB_DAYS} дней доступа&quot;,
+        payload=f&quot;sub:{SUB_DAYS}&quot;,
+        currency=&quot;XTR&quot;,
+        prices=[LabeledPrice(label=&quot;Доступ&quot;, amount=PRICE_STARS)],
+    )
+
+
+@router.message(Command(&quot;status&quot;))
+async def status(message: Message):
+    until = await sub_until(message.from_user.id)
+    await message.answer(f&quot;Доступ до {until} UTC.&quot; if until else &quot;Доступа нет. Купить: /buy&quot;)
+
+
+@router.message(Command(&quot;refund&quot;), F.from_user.id == OWNER_ID)
+async def refund(message: Message, command: CommandObject, bot: Bot):
+    parts = (command.args or &quot;&quot;).split()
+    if len(parts) != 2 or not parts[0].isdigit():
+        await message.answer(&quot;Формат: /refund USER_ID CHARGE_ID&quot;)
+        return
+    await bot.refund_star_payment(int(parts[0]), parts[1])
+    await message.answer(&quot;Звёзды возвращены.&quot;)
+
+
+@router.pre_checkout_query()
+async def pre_checkout(query: PreCheckoutQuery):
+    await query.answer(ok=True)
+
+
+@router.message(F.successful_payment)
+async def paid(message: Message, bot: Bot):
+    pay = message.successful_payment
+    until = await extend_sub(message.from_user.id, SUB_DAYS)
+    link = await bot.create_chat_invite_link(CHAT_ID, member_limit=1, expire_date=timedelta(days=1))
+    await message.answer(f&quot;Оплата прошла. Доступ до {until} UTC.\nТвоя одноразовая ссылка: {link.invite_link}&quot;)
+    await bot.send_message(
+        OWNER_ID,
+        f&quot;+{pay.total_amount} звёзд от {message.from_user.id}\n&quot;
+        f&quot;Возврат: /refund {message.from_user.id} {pay.telegram_payment_charge_id}&quot;,
+    )</code></pre>
+<p>Как проходит оплата: /buy присылает счёт → человек жмёт «Оплатить» → Telegram спрашивает бота через <code>pre_checkout_query</code>, можно ли продавать (на ответ 10 секунд) → списывает звёзды → присылает сообщение <code>successful_payment</code>. Доступ выдаём только по нему.</p>
+<p>Ссылка с <code>member_limit=1</code> пускает ровно одного человека и сгорает через сутки — переслать её другу бесполезно. Такие ссылки работают и в чате с заявками: по ним человек заходит сразу, без анкеты.</p>
+<p>Обнови тексты: в start напиши «/buy — купить доступ, /status — мой доступ», в fallback — «Не понял. Команды: /buy, /status».</p>
+<h3>Сторож подписок</h3>
+<p>Фоновая задача раз в 10 минут проверяет базу. Функции — к остальным функциям базы:</p>
+<pre><code>async def check_subs(bot: Bot):
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            &quot;SELECT user_id, until FROM subs WHERE reminded = 0 &quot;
+            &quot;AND until &gt; datetime(&#x27;now&#x27;) AND until &lt;= datetime(&#x27;now&#x27;, &#x27;+3 days&#x27;)&quot;
+        )
+        for user_id, until in await cur.fetchall():
+            with suppress(TelegramAPIError):
+                await bot.send_message(user_id, f&quot;Доступ заканчивается {until} UTC. Продлить: /buy&quot;)
+            await db.execute(&quot;UPDATE subs SET reminded = 1 WHERE user_id = ?&quot;, (user_id,))
+
+        cur = await db.execute(&quot;SELECT user_id FROM subs WHERE until &lt;= datetime(&#x27;now&#x27;)&quot;)
+        for (user_id,) in await cur.fetchall():
+            try:
+                await bot.ban_chat_member(CHAT_ID, user_id)
+                await bot.unban_chat_member(CHAT_ID, user_id, only_if_banned=True)
+            except TelegramBadRequest as e:
+                logging.warning(&quot;Не смог удалить %s: %s&quot;, user_id, e)
+            await db.execute(&quot;DELETE FROM subs WHERE user_id = ?&quot;, (user_id,))
+        await db.commit()
+
+
+async def watch_subs(bot: Bot):
+    while True:
+        try:
+            await check_subs(bot)
+        except Exception:
+            logging.exception(&quot;Проверка подписок упала&quot;)
+        await asyncio.sleep(600)</code></pre>
+<p>В main() замени строку <code>await dp.start_polling(bot)</code> на три:</p>
+<pre><code>    watcher = asyncio.create_task(watch_subs(bot))  # держим ссылку, иначе задачу съест сборщик мусора
+    await dp.start_polling(bot)
+    watcher.cancel()</code></pre>
+<ul><li>Пара «бан + разбан» — штатный способ удалить человека из чата без вечного бана. Он сможет вернуться, когда снова оплатит.</li><li>Флаг <code>reminded</code> не даёт слать напоминание каждые 10 минут. При продлении он сбрасывается.</li></ul>
+<p>Проверка без лишних трат: поставь <code>PRICE_STARS = 1</code>, купи доступ у своего бота, а потом нажми команду /refund из уведомления — звезда вернётся. Звёзды для теста покупаются в самом Telegram, хватит самого маленького пакета.</p>
+<div class="box key"><strong>Ключ 5.</strong> Это тот же запрос, по которому сторож ищет, кому напомнить. Предскажи ответ, потом запусти key5.py. Напечатанная строка — ключ 5.</div>
+<pre><code>import sqlite3
+
+db = sqlite3.connect(&quot;:memory:&quot;)
+db.execute(&quot;CREATE TABLE subs (user_id INTEGER PRIMARY KEY, until TEXT)&quot;)
+db.executemany(&quot;INSERT INTO subs VALUES (?, ?)&quot;, [
+    (101, &quot;2026-10-02 10:00:00&quot;), (102, &quot;2026-09-30 23:00:00&quot;),
+    (103, &quot;2026-10-04 09:00:00&quot;), (104, &quot;2026-10-03 18:00:00&quot;),
+    (105, &quot;2026-11-01 00:00:00&quot;),
+])
+now = &quot;2026-10-01 12:00:00&quot;
+rows = db.execute(
+    &quot;SELECT user_id FROM subs WHERE until &gt; ? AND until &lt;= datetime(?, &#x27;+3 days&#x27;) &quot;
+    &quot;ORDER BY until&quot;,
+    (now, now),
+).fetchall()
+print(&quot;-&quot;.join(str(r[0]) for r in rows))</code></pre>
+<div class="box vibe"><strong>Вайб-кодеру.</strong> ИИ по старой памяти пишет provider_token и валюту RUB. Для цифровых товаров в боте — только Stars: <code>currency=&quot;XTR&quot;</code>, provider_token не нужен.</div>
+<div class="box dev"><strong>Кодеру.</strong> Доступ выдавай только по <code>successful_payment</code>, никогда по <code>pre_checkout_query</code>. Сохраняй <code>telegram_payment_charge_id</code> — без него не сделать возврат. Фоновую задачу без try/except внутри цикла первая же ошибка сети убьёт молча, и подписки перестанут проверяться.</div>
+<h2>Урок 6. Надёжность: ошибки, антифлуд, тесты</h2>
+<p>Сегодня бот научится присылать тебе каждую ошибку, перестанет захлёбываться от флуда, а ты научишься проверять хендлеры без Telegram.</p>
+<h3>Ошибки — тебе в личку</h3>
+<p>Добавь <code>import traceback</code> и <code>ErrorEvent</code> в импорты. Хендлер — выше fallback:</p>
+<pre><code>@router.errors()
+async def on_error(event: ErrorEvent, bot: Bot):
+    logging.error(&quot;Ошибка: %r&quot;, event.exception, exc_info=event.exception)
+    tb = &quot;&quot;.join(traceback.format_exception(event.exception))
+    with suppress(TelegramAPIError):
+        await bot.send_message(OWNER_ID, f&quot;Ошибка в боте: {event.exception!r}\n\n{tb[-3500:]}&quot;)</code></pre>
+<p>Проверь: отправь <code>/refund 1 abc</code>. Telegram ответит ошибкой, и через секунду у тебя в личке будет трейсбек. Теперь ты узнаёшь о проблеме раньше пользователей.</p>
+<h3>Что такое middleware</h3>
+<p>Middleware — код, который оборачивает хендлеры: делает что-то до них и после. Логирование, антифлуд, бан-лист — всё это middleware, чтобы не копировать одно и то же в каждый хендлер. В aiogram их два вида:</p>
+<ul><li>outer — срабатывает на каждое событие, ещё до проверки фильтров;</li><li>inner (просто middleware) — срабатывает, только если нашёлся хендлер, чьи фильтры подошли.</li></ul>
+<p>Middleware — это класс с методом <code>__call__(handler, event, data)</code>. Вызвал внутри <code>await handler(event, data)</code> — событие пошло дальше. Не вызвал — событие остановлено.</p>
+<h3>Антифлуд</h3>
+<p>Добавь <code>import time</code> и допиши <code>BaseMiddleware</code> в строку <code>from aiogram import ...</code>. Под <code>router = Router()</code>:</p>
+<pre><code>class AntiFlood(BaseMiddleware):
+    def __init__(self, delay: float = 0.7):
+        self.delay = delay
+        self.last: dict[int, float] = {}
+
+    async def __call__(self, handler, event, data):
+        user = data.get(&quot;event_from_user&quot;)
+        if user:
+            now = time.monotonic()
+            if now - self.last.get(user.id, 0) &lt; self.delay:
+                return  # слишком часто: молча пропускаем
+            self.last[user.id] = now
+        return await handler(event, data)
+
+
+router.message.outer_middleware(AntiFlood())</code></pre>
+<p><code>event_from_user</code> aiogram сам кладёт в data — это автор события. <code>time.monotonic()</code> — часы, которые не скачут при переводе времени.</p>
+<div class="box key"><strong>Ключ 6.</strong> Middleware можно проверить без Telegram: aiogram умеет «скормить» диспетчеру поддельное сообщение. Создай файл mw_test.py с кодом ниже. До запуска предскажи, что он напечатает, потом запусти. Напечатанное слово — ключ 6.</div>
+<pre><code>import asyncio
+from datetime import datetime
+
+from aiogram import BaseMiddleware, Bot, Dispatcher, F, Router
+from aiogram.types import Chat, Message, Update, User
+
+log = []
+
+
+class Mark(BaseMiddleware):
+    def __init__(self, before, after):
+        self.before, self.after = before, after
+
+    async def __call__(self, handler, event, data):
+        log.append(self.before)
+        result = await handler(event, data)
+        log.append(self.after)
+        return result
+
+
+router = Router()
+router.message.outer_middleware(Mark(&quot;g&quot;, &quot;e&quot;))
+router.message.outer_middleware(Mark(&quot;a&quot;, &quot;t&quot;))
+router.message.middleware(Mark(&quot;r&quot;, &quot;d&quot;))
+
+
+@router.message(F.text == &quot;тук&quot;)
+async def knock(message: Message):
+    log.append(&quot;o&quot;)
+
+
+def fake(text: str) -&gt; Update:
+    return Update(update_id=1, message=Message(
+        message_id=1, date=datetime.now(), text=text,
+        chat=Chat(id=1, type=&quot;private&quot;),
+        from_user=User(id=1, is_bot=False, first_name=&quot;Test&quot;),
+    ))
+
+
+async def main():
+    dp = Dispatcher()
+    dp.include_router(router)
+    bot = Bot(&quot;42:TEST&quot;)  # фейковый токен: в сеть мы не ходим
+    await dp.feed_update(bot, fake(&quot;привет&quot;))
+    print(&quot;&quot;.join(log))
+    await bot.session.close()
+
+
+asyncio.run(main())</code></pre>
+<p>Потом замени «привет» на «тук» и запусти ещё раз. Объясни себе, откуда взялись новые буквы и почему они встали в середину.</p>
+<h3>Тесты хендлеров без Telegram</h3>
+<p>Тот же приём проверяет и настоящего бота. Подменяем сессию — и все вызовы Telegram API попадают в список, а не в сеть. Файл test_bot.py:</p>
+<pre><code>import asyncio
+import os
+from datetime import datetime
+
+os.environ[&quot;OWNER_ID&quot;] = &quot;1&quot;
+
+from aiogram import Bot, Dispatcher
+from aiogram.client.session.base import BaseSession
+from aiogram.types import Chat, Message, Update, User
+
+import bot as app
+
+
+class FakeSession(BaseSession):
+    def __init__(self):
+        super().__init__()
+        self.sent = []
+
+    async def make_request(self, bot, method, timeout=None):
+        self.sent.append(method)
+        return True
+
+    async def close(self): ...
+    async def stream_content(self, *args, **kwargs): ...
+
+
+async def main():
+    session = FakeSession()
+    bot = Bot(&quot;42:TEST&quot;, session=session)
+    dp = Dispatcher()
+    dp.include_router(app.router)
+    update = Update(update_id=1, message=Message(
+        message_id=1, date=datetime.now(), text=&quot;/id&quot;,
+        chat=Chat(id=5, type=&quot;private&quot;),
+        from_user=User(id=5, is_bot=False, first_name=&quot;Test&quot;),
+    ))
+    await dp.feed_update(bot, update)
+    assert session.sent[-1].text == &quot;Твой ID: 5&quot;
+    print(&quot;ok&quot;)
+
+
+asyncio.run(main())</code></pre>
+<p>Такой тест проверяет хендлер за миллисекунды и без интернета. Попроси ИИ дописать тесты на каждую команду — с ними правки перестают ломать то, что уже работало.</p>
+<div class="box vibe"><strong>Вайб-кодеру.</strong> Когда что-то падает, отдавай ИИ три вещи: полный трейсбек, код хендлера и версию aiogram (<code>pip show aiogram</code>). «Не работает» без трейсбека — это гадание.</div>
+<div class="box dev"><strong>Кодеру.</strong> Рассылка по базе: не больше 25 сообщений в секунду. Ловишь <code>TelegramRetryAfter</code> — спишь <code>e.retry_after</code> секунд и повторяешь. Ловишь <code>TelegramForbiddenError</code> — человек заблокировал бота, отметь это в базе и больше ему не пиши.</div>
+<h2>Урок 7. Сервер 24/7</h2>
+<p>Сегодня переносим бота на сервер, чтобы он работал без твоего компьютера, сам поднимался после падений и делал бэкапы.</p>
+<h3>Подготовка проекта</h3>
+<p>Файл <code>.gitignore</code> в папке проекта:</p>
+<pre><code>venv/
+.env
+*.db
+__pycache__/</code></pre>
+<p>Список зависимостей: <code>pip freeze &gt; requirements.txt</code>. Залей код в приватный репозиторий на GitHub. Файл .env туда не попадёт — на сервере создашь его заново.</p>
+<h3>Сервер</h3>
+<p>Подойдёт самый дешёвый VPS с Ubuntu 24.04. Зайди на него по SSH и выполни:</p>
+<pre><code>sudo apt update
+sudo apt install -y python3-venv git sqlite3
+git clone https://github.com/ТВОЙ_ЛОГИН/kluchnik.git ~/kluchnik
+cd ~/kluchnik
+python3 -m venv venv
+venv/bin/pip install -r requirements.txt
+nano .env</code></pre>
+<p>Для приватного репозитория GitHub спросит логин и токен доступа (Personal access token). В .env впиши те же BOT_TOKEN, OWNER_ID и CHAT_ID, что дома. Проверь запуск руками: <code>venv/bin/python bot.py</code>, затем Ctrl+C.</p>
+<h3>systemd: бот как служба</h3>
+<p>Узнай своё имя пользователя (<code>whoami</code>) и путь к папке (<code>pwd</code>). Создай файл службы: <code>sudo nano /etc/systemd/system/kluchnik.service</code>.</p>
+<pre><code>[Unit]
+Description=Kluchnik bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ТВОЙ_ПОЛЬЗОВАТЕЛЬ
+WorkingDirectory=/home/ТВОЙ_ПОЛЬЗОВАТЕЛЬ/kluchnik
+ExecStart=/home/ТВОЙ_ПОЛЬЗОВАТЕЛЬ/kluchnik/venv/bin/python bot.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<p>Если заходишь под root, путь будет /root/kluchnik, а пользователь — root. Запускаем:</p>
+<pre><code>sudo systemctl daemon-reload
+sudo systemctl enable --now kluchnik
+sudo systemctl status kluchnik
+journalctl -u kluchnik -f</code></pre>
+<ul><li><code>Restart=always</code>: упал бот — systemd поднимет его через 5 секунд.</li><li><code>enable</code>: бот стартует сам после перезагрузки сервера.</li><li><code>journalctl -f</code> показывает живой лог. Выход — Ctrl+C.</li><li>Обновить код: <code>cd ~/kluchnik &amp;&amp; git pull &amp;&amp; sudo systemctl restart kluchnik</code>.</li></ul>
+<h3>Бэкап базы каждую ночь</h3>
+<p>В базе — подписки, за которые люди заплатили. Потерять её нельзя. Открой <code>crontab -e</code> и добавь строку:</p>
+<pre><code>0 4 * * * cd ~/kluchnik &amp;&amp; mkdir -p backups &amp;&amp; sqlite3 kluchnik.db &quot;.backup backups/kluchnik-$(date +\%F).db&quot;</code></pre>
+<p>Команда <code>.backup</code> безопасна даже при работающем боте, в отличие от простого копирования файла. Знак % в crontab экранируется обратной чертой — без неё строка не сработает.</p>
+<h3>Один токен — один запущенный бот</h3>
+<p>Telegram отдаёт обновления только одному процессу. Запустишь второй с тем же токеном — они начнут драться за обновления. Самая частая беда: бот уже работает на сервере, а ты запускаешь его ещё и дома для отладки. Для отладки заведи у BotFather второго, тестового бота.</p>
+<div class="box key"><strong>Ключ 7.</strong> Пока бот работает на сервере, запусти его же у себя на компьютере: <code>python bot.py</code>. Подожди 10–20 секунд и отправь боту пару сообщений. В одной из консолей (дома или на сервере в <code>journalctl -u kluchnik -f</code>) появится ошибка <code>Failed to fetch updates - TelegramConflictError: Telegram server says - ...</code>. Первое слово после «Telegram server says -», маленькими буквами, — ключ 7. Потом останови домашнего бота.</div>
+<div class="box vibe"><strong>Вайб-кодеру.</strong> Не проси ИИ «задеплоить за тебя». Проси объяснить каждую команду, прежде чем её запускать. На сервере ты один на один с консолью, и <code>rm -rf</code> из чужого ответа не откатить.</div>
+<div class="box dev"><strong>Кодеру.</strong> Webhook вместо polling нужен, когда событий тысячи в минуту или бот живёт на serverless. Для бота такого размера polling проще: ему не нужны ни домен, ни сертификат, ни открытый порт.</div>
+<h2>Урок 8. Финал: пропуск у Привратника</h2>
+<p>Сегодня твой бот сам заработает тебе пропуск в чат выпускников.</p>
+<h3>Как проходит экзамен</h3>
+<ol><li>Пишешь Привратнику /gate. Он выдаёт одноразовое слово из 8 символов. Слово живёт 15 минут.</li><li>Отправляешь своему боту <code>/proof СЛОВО</code>.</li><li>Бот считает код из семи ключей, твоего ID, ID бота и слова и отвечает: <code>PROOF слово КОД</code>.</li><li>Пересылаешь этот ответ Привратнику. Именно «Переслать», а не скопировать текст.</li><li>Привратник проверяет код и выдаёт одноразовую ссылку в чат выпускников.</li></ol>
+<p>Почему это не подделать:</p>
+<ul><li>Код зависит от твоего Telegram ID. Ответ чужого бота для тебя не сработает.</li><li>Привратник видит, от какого бота переслано сообщение, и сам знает его ID.</li><li>Один бот проводит через дверь только одного человека.</li><li>Слово одноразовое и быстро протухает.</li></ul>
+<h3>Код</h3>
+<p>Добавь <code>import hashlib</code> в импорты. После строки с SUB_DAYS:</p>
+<pre><code>KEYS = [&quot;ключ1&quot;, &quot;ключ2&quot;, &quot;ключ3&quot;, &quot;ключ4&quot;, &quot;ключ5&quot;, &quot;ключ6&quot;, &quot;ключ7&quot;]</code></pre>
+<p>Подставь свои ключи из keys.txt в порядке уроков. Регистр и знаки — точно как их выдали.</p>
+<p>Функцию — к остальным функциям, хендлер — выше fallback:</p>
+<pre><code>def make_proof(user_id: int, bot_id: int, word: str) -&gt; str:
+    raw = &quot;|&quot;.join([*KEYS, str(user_id), str(bot_id), word])
+    return hashlib.sha256(raw.encode()).hexdigest()[:10].upper()
+
+
+@router.message(Command(&quot;proof&quot;), F.from_user.id == OWNER_ID)
+async def proof(message: Message, command: CommandObject, bot: Bot):
+    if not command.args:
+        await message.answer(&quot;Формат: /proof СЛОВО_ОТ_ПРИВРАТНИКА&quot;)
+        return
+    word = command.args.strip()
+    code = make_proof(message.from_user.id, bot.id, word)
+    await message.answer(f&quot;PROOF {word} {code}&quot;)</code></pre>
+<h3>Как это работает</h3>
+<ul><li><code>&quot;|&quot;.join(...)</code> склеивает ключи, твой ID, ID бота и слово через вертикальную черту.</li><li>sha256 — хеш-функция: из любой строки получается 64 символа. Поменяй на входе один символ — изменится весь хеш. Обратно хеш не разворачивается, поэтому по чужому коду ключи не узнать.</li><li><code>[:10].upper()</code> — первые 10 символов, заглавными буквами.</li><li><code>bot.id</code> — ID бота, то самое число из токена (урок 1).</li><li><code>F.from_user.id == OWNER_ID</code> — пропуск выдаётся только хозяину бота.</li></ul>
+<p>Тот же приём — подпись данных хешем с секретом — защищает ссылки на оплату, вебхуки и данные мини-приложений Telegram. Ты только что собрал его руками.</p>
+<p>Обнови бота на сервере (урок 7) и иди к Привратнику.</p>
+<h3>Если Привратник не пускает</h3>
+<ul><li>«Код не сходится» — проверь ключи: порядок, регистр, лишние пробелы и кавычки. Какой ключ неверный, Привратник не скажет.</li><li>«Слово протухло» — возьми новое: /gate.</li><li>«Это копия» — нужно переслать сообщение, а не копировать его текст.</li><li>«Этот бот уже провёл другого человека» — нужен свой бот.</li><li>Бот отвечает «Не понял» — хендлер /proof стоит ниже fallback или в .env записан не твой OWNER_ID.</li></ul>
+<h2>Приложение А. Вайб-кодинг ботов: промпт и чек-лист</h2>
+<h3>Шаблон промпта</h3>
+<p>Копируй, заполняй скобки, отправляй. Чем точнее задача и пример диалога, тем меньше переделок.</p>
+<pre><code>Ты опытный разработчик Telegram-ботов.
+Стек: Python 3.12, aiogram 3.x (не 2.x), aiosqlite, python-dotenv.
+Вот мой bot.py целиком:
+&lt;вставь код&gt;
+
+Задача: &lt;что должно появиться&gt;
+Пример диалога:
+&lt;пользователь пишет...&gt; -&gt; &lt;бот отвечает...&gt;
+
+Требования:
+- токены и ID только из .env;
+- SQL только с плейсхолдерами ?;
+- callback.answer() в каждом callback-хендлере;
+- новые хендлеры ставь выше fallback и скажи, куда именно вставить;
+- не меняй то, о чём я не просил.
+
+Ответ: только изменённые куски кода, место вставки и как проверить руками.</code></pre>
+<h3>Как чинить ошибку вместе с ИИ</h3>
+<ol><li>Скопируй трейсбек целиком — от «Traceback» до последней строки. Бот из урока 6 сам пришлёт его тебе в личку.</li><li>Приложи код хендлера, где упало, и версию aiogram.</li><li>Напиши, что делал перед ошибкой: какую кнопку нажал, что отправил.</li><li>Попроси сначала объяснить причину, потом дать исправление. Так ты учишься, а не копируешь.</li></ol>
+<h3>Чек-лист: проверь код от ИИ перед запуском</h3>
+<ol><li>Синтаксис aiogram 3: нет <code>executor</code>, <code>message_handler</code>, <code>dp.register_message_handler</code>.</li><li>Токенов и ID нет в коде — только .env.</li><li>SQL только с <code>?</code>, без f-строк.</li><li>В каждом callback-хендлере есть <code>callback.answer()</code>.</li><li>Порядок хендлеров: fallback последний, /cancel выше состояний.</li><li>Нет блокирующих вызовов в async: <code>requests</code> и <code>time.sleep</code> заменены на <code>aiohttp</code>/<code>httpx</code> и <code>asyncio.sleep</code>.</li><li>Текст пользователя не уходит в parse_mode="HTML" без <code>html.escape()</code>.</li><li>У админских команд и кнопок есть фильтр по OWNER_ID.</li><li>Фоновые задачи обёрнуты в try/except, ссылка на задачу сохранена.</li><li>Ошибки не глотаются молча: есть logging и обработчик ошибок.</li></ol>
+<h2>Приложение Б. Частые ошибки и как их лечить</h2>
+<ul><li><strong>TelegramConflictError: terminated by other getUpdates request</strong> — с этим токеном запущены два бота. Останови лишний.</li><li><strong>TelegramUnauthorizedError</strong> — неверный или отозванный токен. Возьми новый у BotFather.</li><li><strong>Bad Request: chat not found</strong> — неверный CHAT_ID (у групп он начинается с -100) или бота нет в чате.</li><li><strong>Forbidden: bot can't initiate conversation with a user</strong> — человек не запускал бота. Писать первым бот может только тем, кто нажал «Запустить», или в течение 5 минут после заявки в чат.</li><li><strong>Forbidden: bot was blocked by the user</strong> — человек заблокировал бота. Отметь в базе и не пиши ему.</li><li><strong>Bad Request: can't parse entities</strong> — включён parse_mode, а в тексте неэкранированные «&lt;», «&gt;» или «&amp;».</li><li><strong>Bad Request: message is not modified</strong> — edit_text с тем же текстом и кнопками. Проверь, изменилось ли что-то, перед редактированием.</li><li><strong>Bad Request: query is too old</strong> — на callback ответили позже чем через 15 секунд или после перезапуска. Отвечай <code>callback.answer()</code> в начале долгих хендлеров.</li><li><strong>Bad Request: BUTTON_DATA_INVALID</strong> — callback_data длиннее 64 байт. Кириллица весит 2 байта на букву.</li><li><strong>Bad Request: HIDE_REQUESTER_MISSING</strong> — заявку уже приняли, отклонили или она истекла.</li><li><strong>Кнопка крутится и ничего не происходит</strong> — нет <code>callback.answer()</code> или хендлер не нашёлся: проверь фильтр CallbackData.</li><li><strong>Бот молчит в группе</strong> — в группах бот по умолчанию видит только команды. Сделай его админом или выключи privacy mode у BotFather (/setprivacy).</li><li><strong>Хендлер не срабатывает</strong> — его перехватил хендлер выше. Подними нужный выше общих.</li><li><strong>Заявки не приходят</strong> — у бота нет права приглашать пользователей или ссылка создана без «Заявок на вступление».</li></ul>
+<h2>Приложение В. Полный код bot.py</h2>
+<p>Сверяй с ним свой файл, если что-то не работает. Вместо «ключ1»…«ключ7» — твои ключи.</p>
+<pre><code>import asyncio
+import hashlib
+import logging
+import os
+import time
+import traceback
+from contextlib import suppress
+from datetime import timedelta
+
+import aiosqlite
+from aiogram import BaseMiddleware, Bot, Dispatcher, F, Router
+from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
+from aiogram.filters import Command, CommandObject, CommandStart
+from aiogram.filters.callback_data import CallbackData
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import (CallbackQuery, ChatJoinRequest, ErrorEvent, LabeledPrice,
+                           Message, PreCheckoutQuery)
+from aiogram.utils.deep_linking import create_start_link
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from dotenv import load_dotenv
+
+load_dotenv()
+OWNER_ID = int(os.getenv(&quot;OWNER_ID&quot;, &quot;0&quot;))
+CHAT_ID = int(os.getenv(&quot;CHAT_ID&quot;, &quot;0&quot;))
+DB = &quot;kluchnik.db&quot;
+PRICE_STARS = 100
+SUB_DAYS = 30
+KEYS = [&quot;ключ1&quot;, &quot;ключ2&quot;, &quot;ключ3&quot;, &quot;ключ4&quot;, &quot;ключ5&quot;, &quot;ключ6&quot;, &quot;ключ7&quot;]
+
+router = Router()
+
+
+# ---------- урок 4: база ----------
+async def init_db():
+    async with aiosqlite.connect(DB) as db:
+        await db.executescript(
+            &quot;&quot;&quot;
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY,
+                source TEXT,
+                joined TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS subs (
+                user_id INTEGER PRIMARY KEY,
+                until TEXT NOT NULL,
+                reminded INTEGER DEFAULT 0
+            );
+            &quot;&quot;&quot;
+        )
+        await db.commit()
+
+
+async def save_user(user_id: int, source: str | None):
+    async with aiosqlite.connect(DB) as db:
+        await db.execute(
+            &quot;INSERT OR IGNORE INTO users (user_id, source) VALUES (?, ?)&quot;,
+            (user_id, source),
+        )
+        await db.commit()
+
+
+async def sources_report():
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            &quot;SELECT COALESCE(source, &#x27;без метки&#x27;), COUNT(*) AS c FROM users &quot;
+            &quot;GROUP BY source ORDER BY c DESC&quot;
+        )
+        return await cur.fetchall()
+
+
+# ---------- урок 5: подписки ----------
+async def extend_sub(user_id: int, days: int) -&gt; str:
+    period = f&quot;+{days} days&quot;
+    async with aiosqlite.connect(DB) as db:
+        await db.execute(
+            &quot;INSERT INTO subs (user_id, until) VALUES (?, datetime(&#x27;now&#x27;, ?)) &quot;
+            &quot;ON CONFLICT(user_id) DO UPDATE SET &quot;
+            &quot;until = datetime(max(until, datetime(&#x27;now&#x27;)), ?), reminded = 0&quot;,
+            (user_id, period, period),
+        )
+        await db.commit()
+        cur = await db.execute(&quot;SELECT until FROM subs WHERE user_id = ?&quot;, (user_id,))
+        return (await cur.fetchone())[0]
+
+
+async def sub_until(user_id: int) -&gt; str | None:
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            &quot;SELECT until FROM subs WHERE user_id = ? AND until &gt; datetime(&#x27;now&#x27;)&quot;,
+            (user_id,),
+        )
+        row = await cur.fetchone()
+        return row[0] if row else None
+
+
+async def check_subs(bot: Bot):
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            &quot;SELECT user_id, until FROM subs WHERE reminded = 0 &quot;
+            &quot;AND until &gt; datetime(&#x27;now&#x27;) AND until &lt;= datetime(&#x27;now&#x27;, &#x27;+3 days&#x27;)&quot;
+        )
+        for user_id, until in await cur.fetchall():
+            with suppress(TelegramAPIError):
+                await bot.send_message(user_id, f&quot;Доступ заканчивается {until} UTC. Продлить: /buy&quot;)
+            await db.execute(&quot;UPDATE subs SET reminded = 1 WHERE user_id = ?&quot;, (user_id,))
+
+        cur = await db.execute(&quot;SELECT user_id FROM subs WHERE until &lt;= datetime(&#x27;now&#x27;)&quot;)
+        for (user_id,) in await cur.fetchall():
+            try:
+                await bot.ban_chat_member(CHAT_ID, user_id)
+                await bot.unban_chat_member(CHAT_ID, user_id, only_if_banned=True)
+            except TelegramBadRequest as e:
+                logging.warning(&quot;Не смог удалить %s: %s&quot;, user_id, e)
+            await db.execute(&quot;DELETE FROM subs WHERE user_id = ?&quot;, (user_id,))
+        await db.commit()
+
+
+async def watch_subs(bot: Bot):
+    while True:
+        try:
+            await check_subs(bot)
+        except Exception:
+            logging.exception(&quot;Проверка подписок упала&quot;)
+        await asyncio.sleep(600)
+
+
+# ---------- урок 2: заявки ----------
+class Gate(CallbackData, prefix=&quot;jr&quot;):
+    act: str
+    user_id: int
+
+
+# ---------- урок 3: анкета ----------
+class Apply(StatesGroup):
+    waiting_who = State()
+    waiting_from = State()
+
+
+# ---------- урок 6: надёжность ----------
+class AntiFlood(BaseMiddleware):
+    def __init__(self, delay: float = 0.7):
+        self.delay = delay
+        self.last: dict[int, float] = {}
+
+    async def __call__(self, handler, event, data):
+        user = data.get(&quot;event_from_user&quot;)
+        if user:
+            now = time.monotonic()
+            if now - self.last.get(user.id, 0) &lt; self.delay:
+                return  # слишком часто: молча пропускаем
+            self.last[user.id] = now
+        return await handler(event, data)
+
+
+router.message.outer_middleware(AntiFlood())
+
+
+# ---------- урок 8: пропуск ----------
+def make_proof(user_id: int, bot_id: int, word: str) -&gt; str:
+    raw = &quot;|&quot;.join([*KEYS, str(user_id), str(bot_id), word])
+    return hashlib.sha256(raw.encode()).hexdigest()[:10].upper()
+
+
+# ---------- команды: порядок важен ----------
+@router.message(CommandStart(deep_link=True, deep_link_encoded=True))
+async def start_from_link(message: Message, command: CommandObject):
+    await save_user(message.from_user.id, command.args)
+    await message.answer(f&quot;Привет! Ты пришёл по метке: {command.args}&quot;)
+
+
+@router.message(CommandStart())
+async def start(message: Message):
+    await save_user(message.from_user.id, None)
+    await message.answer(&quot;Привет! Я Ключник, бот закрытого чата.\n/buy — купить доступ\n/status — мой доступ&quot;)
+
+
+@router.message(Command(&quot;id&quot;))
+async def my_id(message: Message):
+    await message.answer(f&quot;Твой ID: {message.from_user.id}&quot;)
+
+
+@router.message(Command(&quot;chatid&quot;))
+async def chat_id(message: Message):
+    await message.answer(f&quot;ID этого чата: {message.chat.id}&quot;)
+
+
+@router.message(Command(&quot;link&quot;), F.from_user.id == OWNER_ID)
+async def make_link(message: Message, command: CommandObject, bot: Bot):
+    if not command.args:
+        await message.answer(&quot;Формат: /link метка, например /link youtube&quot;)
+        return
+    await message.answer(await create_start_link(bot, command.args, encode=True))
+
+
+@router.message(Command(&quot;cancel&quot;))
+async def cancel(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(&quot;Отменил.&quot;)
+
+
+@router.message(Command(&quot;buy&quot;))
+async def buy(message: Message):
+    await message.answer_invoice(
+        title=&quot;Доступ в закрытый чат&quot;,
+        description=f&quot;{SUB_DAYS} дней доступа&quot;,
+        payload=f&quot;sub:{SUB_DAYS}&quot;,
+        currency=&quot;XTR&quot;,
+        prices=[LabeledPrice(label=&quot;Доступ&quot;, amount=PRICE_STARS)],
+    )
+
+
+@router.message(Command(&quot;status&quot;))
+async def status(message: Message):
+    until = await sub_until(message.from_user.id)
+    await message.answer(f&quot;Доступ до {until} UTC.&quot; if until else &quot;Доступа нет. Купить: /buy&quot;)
+
+
+@router.message(Command(&quot;admin&quot;), F.from_user.id == OWNER_ID)
+async def admin(message: Message):
+    rows = await sources_report()
+    lines = [f&quot;{source}: {count}&quot; for source, count in rows] or [&quot;пока никого&quot;]
+    await message.answer(&quot;Откуда пришли:\n&quot; + &quot;\n&quot;.join(lines))
+
+
+@router.message(Command(&quot;refund&quot;), F.from_user.id == OWNER_ID)
+async def refund(message: Message, command: CommandObject, bot: Bot):
+    parts = (command.args or &quot;&quot;).split()
+    if len(parts) != 2 or not parts[0].isdigit():
+        await message.answer(&quot;Формат: /refund USER_ID CHARGE_ID&quot;)
+        return
+    await bot.refund_star_payment(int(parts[0]), parts[1])
+    await message.answer(&quot;Звёзды возвращены.&quot;)
+
+
+@router.message(Command(&quot;proof&quot;), F.from_user.id == OWNER_ID)
+async def proof(message: Message, command: CommandObject, bot: Bot):
+    if not command.args:
+        await message.answer(&quot;Формат: /proof СЛОВО_ОТ_ПРИВРАТНИКА&quot;)
+        return
+    word = command.args.strip()
+    code = make_proof(message.from_user.id, bot.id, word)
+    await message.answer(f&quot;PROOF {word} {code}&quot;)
+
+
+# ---------- заявки и анкета ----------
+@router.chat_join_request(F.chat.id == CHAT_ID)
+async def on_join_request(request: ChatJoinRequest, bot: Bot):
+    kb = InlineKeyboardBuilder()
+    kb.button(text=&quot;Я человек&quot;, callback_data=Gate(act=&quot;human&quot;, user_id=request.from_user.id))
+    await bot.send_message(
+        request.user_chat_id,
+        f&quot;Ты подал заявку в «{request.chat.title}». Нажми кнопку, чтобы продолжить.&quot;,
+        reply_markup=kb.as_markup(),
+    )
+
+
+@router.callback_query(Gate.filter(F.act == &quot;human&quot;))
+async def human(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(Apply.waiting_who)
+    await callback.message.edit_text(&quot;Спасибо! Два вопроса.\n1. Кто ты и чем занимаешься?&quot;)
+    await callback.answer()
+
+
+@router.callback_query(Gate.filter(F.act.in_({&quot;ok&quot;, &quot;no&quot;})), F.from_user.id == OWNER_ID)
+async def decide(callback: CallbackQuery, callback_data: Gate, bot: Bot):
+    uid, ok = callback_data.user_id, callback_data.act == &quot;ok&quot;
+    try:
+        if ok:
+            await bot.approve_chat_join_request(CHAT_ID, uid)
+        else:
+            await bot.decline_chat_join_request(CHAT_ID, uid)
+    except TelegramBadRequest as e:
+        await callback.answer(f&quot;Не вышло: {e.message}&quot;[:200], show_alert=True)
+        return
+    with suppress(TelegramAPIError):
+        await bot.send_message(uid, &quot;Заявка принята. Добро пожаловать!&quot; if ok else &quot;Заявка отклонена.&quot;)
+    verdict = &quot;принята&quot; if ok else &quot;отклонена&quot;
+    await callback.message.edit_text(f&quot;{callback.message.text}\n\nЗаявка {verdict}.&quot;)
+    await callback.answer()
+
+
+@router.message(Apply.waiting_who, F.text)
+async def apply_who(message: Message, state: FSMContext):
+    await state.update_data(who=message.text)
+    await state.set_state(Apply.waiting_from)
+    await message.answer(&quot;2. Откуда узнал о нас?&quot;)
+
+
+@router.message(Apply.waiting_from, F.text)
+async def apply_from(message: Message, state: FSMContext, bot: Bot):
+    data = await state.get_data()
+    await state.clear()
+    user = message.from_user
+    nick = f&quot; @{user.username}&quot; if user.username else &quot;&quot;
+    kb = InlineKeyboardBuilder()
+    kb.button(text=&quot;Принять&quot;, callback_data=Gate(act=&quot;ok&quot;, user_id=user.id))
+    kb.button(text=&quot;Отклонить&quot;, callback_data=Gate(act=&quot;no&quot;, user_id=user.id))
+    await bot.send_message(
+        OWNER_ID,
+        f&quot;Заявка: {user.full_name}{nick}, id {user.id}\n\n&quot;
+        f&quot;Кто: {data[&#x27;who&#x27;]}\nОткуда: {message.text}&quot;,
+        reply_markup=kb.as_markup(),
+    )
+    await message.answer(&quot;Анкета у админа. Ответ придёт сюда.&quot;)
+
+
+# ---------- оплата ----------
+@router.pre_checkout_query()
+async def pre_checkout(query: PreCheckoutQuery):
+    await query.answer(ok=True)
+
+
+@router.message(F.successful_payment)
+async def paid(message: Message, bot: Bot):
+    pay = message.successful_payment
+    until = await extend_sub(message.from_user.id, SUB_DAYS)
+    link = await bot.create_chat_invite_link(CHAT_ID, member_limit=1, expire_date=timedelta(days=1))
+    await message.answer(f&quot;Оплата прошла. Доступ до {until} UTC.\nТвоя одноразовая ссылка: {link.invite_link}&quot;)
+    await bot.send_message(
+        OWNER_ID,
+        f&quot;+{pay.total_amount} звёзд от {message.from_user.id}\n&quot;
+        f&quot;Возврат: /refund {message.from_user.id} {pay.telegram_payment_charge_id}&quot;,
+    )
+
+
+# ---------- ошибки и всё остальное ----------
+@router.errors()
+async def on_error(event: ErrorEvent, bot: Bot):
+    logging.error(&quot;Ошибка: %r&quot;, event.exception, exc_info=event.exception)
+    tb = &quot;&quot;.join(traceback.format_exception(event.exception))
+    with suppress(TelegramAPIError):
+        await bot.send_message(OWNER_ID, f&quot;Ошибка в боте: {event.exception!r}\n\n{tb[-3500:]}&quot;)
+
+
+@router.message(F.chat.type == &quot;private&quot;)
+async def fallback(message: Message):
+    await message.answer(&quot;Не понял. Команды: /buy, /status&quot;)
+
+
+async def main():
+    logging.basicConfig(level=logging.INFO)
+    await init_db()
+    bot = Bot(os.environ[&quot;BOT_TOKEN&quot;])
+    dp = Dispatcher()
+    dp.include_router(router)
+    watcher = asyncio.create_task(watch_subs(bot))  # держим ссылку, иначе задачу съест сборщик мусора
+    await dp.start_polling(bot)
+    watcher.cancel()
+
+
+if __name__ == &quot;__main__&quot;:
+    asyncio.run(main())</code></pre>
+<p>Ты прошёл путь от токена у BotFather до бота, который сторожит чат, принимает деньги и сам живёт на сервере. Документация aiogram: docs.aiogram.dev.</p></body></html>
